@@ -6,10 +6,15 @@ import (
 )
 
 func TestStart(t *testing.T) {
-	result, err := Login("", "")
+	cookie, err := Login("", "")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println(result)
+	user, err := GetUserInfo(cookie)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(user)
 }

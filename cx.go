@@ -5,8 +5,11 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/antchfx/htmlquery"
 )
 
 func Login(uname, password string) (map[string]string, error) {
@@ -38,6 +41,35 @@ func Login(uname, password string) (map[string]string, error) {
 		cookie[v.Name] = v.Value
 	}
 	return cookie, nil
+}
+
+func GetUserInfo(cookie map[string]string) (*User, error) {
+	req, _ := http.NewRequest(http.MethodGet, URL_USER_INFO, nil)
+	addRequestHeader(req, cookie, "")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	doc, err := htmlquery.Parse(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	userName := htmlquery.InnerText(htmlquery.FindOne(doc, `//p[@id="messageName"]`))
+	userID := htmlquery.InnerText(htmlquery.FindOne(doc, `//p[@id="uid"]`))
+	userSex, _ := strconv.Atoi(htmlquery.SelectAttr(htmlquery.FindOne(doc, `//p[contains(@class, "sex")]//i[contains(@class, "checked")]`), "value"))
+	var userSexString string
+	if userSex == MALE {
+		userSexString = "男"
+	} else {
+		userSexString = "女"
+	}
+	userPhone := htmlquery.InnerText(htmlquery.FindOne(doc, `//span[@id="messagePhone"]`))
+	schoolName := strings.TrimSpace(strings.Split(htmlquery.InnerText(htmlquery.FindOne(doc, `//ul[@id="messageFid"]`)), "\n")[1])
+	schoolSno := strings.Split(htmlquery.InnerText(htmlquery.FindOne(doc, `//p[@class="xuehao"]`)), ":")[1]
+	user := User{Name: userName, Id: userID, Sex: Sex{Value: userSex, Text: userSexString}, Phone: userPhone, School: schoolName, Sno: schoolSno}
+	return &user, nil
 }
 
 func disallowRedirect(req *http.Request, via []*http.Request) error {

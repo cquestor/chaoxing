@@ -3,7 +3,6 @@ package cx
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -88,6 +87,7 @@ func GetCourseList(cookie map[string]string) ([]Course, error) {
 		return nil, err
 	}
 	courseListDome := htmlquery.Find(doc, `//ul[@id="courseList"]/li[contains(@class, "course")]`)
+	var courseList []Course
 	for _, v := range courseListDome {
 		courseId := htmlquery.SelectAttr(v, "courseid")
 		clazzId := htmlquery.SelectAttr(v, "clazzid")
@@ -95,9 +95,9 @@ func GetCourseList(cookie map[string]string) ([]Course, error) {
 		courseName := htmlquery.SelectAttr(htmlquery.FindOne(v, `.//span[contains(@class, "course-name")]`), "title")
 		teacherName := htmlquery.SelectAttr(htmlquery.FindOne(v, `.//p[@class="line2"]`), "title")
 		clazzName := strings.Split(htmlquery.InnerText(htmlquery.FindOne(v, `.//p[@class="overHidden1"]`)), "：")[1]
-		fmt.Println(courseId, clazzId, personId, courseName, teacherName, clazzName)
+		courseList = append(courseList, Course{CourseId: courseId, ClazzId: clazzId, PersonId: personId, CourseName: courseName, TeacherName: teacherName, ClazzName: clazzName})
 	}
-	return nil, nil
+	return courseList, nil
 }
 
 func disallowRedirect(req *http.Request, via []*http.Request) error {

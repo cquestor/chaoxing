@@ -30,4 +30,10 @@ type User struct {
 }
 
 type Course struct {
+	CourseId    string
+	ClazzId     string
+	PersonId    string
+	CourseName  string
+	TeacherName string
+	ClazzName   string
 }

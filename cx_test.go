@@ -17,5 +17,10 @@ func TestStart(t *testing.T) {
 	// 	return
 	// }
 	// fmt.Println(user)
-	GetCourseList(cookie)
+	result, err := GetCourseList(cookie)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(result)
 }

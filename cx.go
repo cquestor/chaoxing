@@ -3,6 +3,7 @@ package cx
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -70,6 +71,33 @@ func GetUserInfo(cookie map[string]string) (*User, error) {
 	schoolSno := strings.Split(htmlquery.InnerText(htmlquery.FindOne(doc, `//p[@class="xuehao"]`)), ":")[1]
 	user := User{Name: userName, Id: userID, Sex: Sex{Value: userSex, Text: userSexString}, Phone: userPhone, School: schoolName, Sno: schoolSno}
 	return &user, nil
+}
+
+func GetCourseList(cookie map[string]string) ([]Course, error) {
+	payload := "courseType=1&courseFolderId=0&baseEducation=0&superstarClass=&courseFolderSize=0"
+	req, _ := http.NewRequest(http.MethodPost, URL_COURSE_LIST, strings.NewReader(payload))
+	addRequestHeader(req, cookie, "application/x-www-form-urlencoded; charset=UTF-8")
+	client := &http.Client{Timeout: time.Second * 10, CheckRedirect: disallowRedirect}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	doc, err := htmlquery.Parse(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	courseListDome := htmlquery.Find(doc, `//ul[@id="courseList"]/li[contains(@class, "course")]`)
+	for _, v := range courseListDome {
+		courseId := htmlquery.SelectAttr(v, "courseid")
+		clazzId := htmlquery.SelectAttr(v, "clazzid")
+		personId := htmlquery.SelectAttr(v, "personid")
+		courseName := htmlquery.SelectAttr(htmlquery.FindOne(v, `.//span[contains(@class, "course-name")]`), "title")
+		teacherName := htmlquery.SelectAttr(htmlquery.FindOne(v, `.//p[@class="line2"]`), "title")
+		clazzName := strings.Split(htmlquery.InnerText(htmlquery.FindOne(v, `.//p[@class="overHidden1"]`)), "：")[1]
+		fmt.Println(courseId, clazzId, personId, courseName, teacherName, clazzName)
+	}
+	return nil, nil
 }
 
 func disallowRedirect(req *http.Request, via []*http.Request) error {

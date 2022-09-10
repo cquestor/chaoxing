@@ -11,10 +11,11 @@ func TestStart(t *testing.T) {
 		fmt.Println(err.Error())
 		return
 	}
-	user, err := GetUserInfo(cookie)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	fmt.Println(user)
+	// user, err := GetUserInfo(cookie)
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// 	return
+	// }
+	// fmt.Println(user)
+	GetCourseList(cookie)
 }

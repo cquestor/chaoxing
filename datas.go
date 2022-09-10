@@ -1,8 +1,9 @@
 package cx
 
 const (
-	URL_LOGIN     = "http://passport2.chaoxing.com/fanyalogin"
-	URL_USER_INFO = "http://passport2.chaoxing.com/mooc/accountManage"
+	URL_LOGIN       = "http://passport2.chaoxing.com/fanyalogin"
+	URL_USER_INFO   = "http://passport2.chaoxing.com/mooc/accountManage"
+	URL_COURSE_LIST = "http://mooc1-1.chaoxing.com/visit/courselistdata"
 )
 
 const (
@@ -20,10 +21,13 @@ type Sex struct {
 }
 
 type User struct {
-	Name   string //姓名
-	Id     string //ID
-	Sex    Sex    //性别
-	Phone  string //手机号
-	School string //学校
-	Sno    string //学号
+	Name   string
+	Id     string
+	Sex    Sex
+	Phone  string
+	School string
+	Sno    string
+}
+
+type Course struct {
 }
